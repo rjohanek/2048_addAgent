@@ -1,6 +1,6 @@
 # EE369-2048-AI
 
-For SJTU EE369 final project.
+For SJTU [EE369](https://github.com/duducheng/2048-api) final project.
 
 Use supervised learning (imitation learning) and tree searching approaches to solve the game of 2048.
 
@@ -21,21 +21,11 @@ Use supervised learning (imitation learning) and tree searching approaches to so
 * [`explore.ipynb`](explore.ipynb): introduce how to use the `Agent`, `Display` and `Game`.
 * [`static/`](static/): frontend assets (based on Vue.js) for web app.
 * [`webapp.py`](webapp.py): run the web app (backend) demo.
-* [`evaluate.py`](evaluate.py): evaluate your self-defined agent.
+* [`evaluate.py`](evaluate.py): evaluate the self-defined agent.
 
-## To run the web app
-```
-python webapp.py 
-```
-You can also specify an agent by adding `--agent`
-
-`cnnagent`, `pagent`, `emagent` are usable, `RandomAgent` by default.
-
-```bash
-python webapp.py --agent=pagent
-```
 
 ## To run the evaluation of the agents
+
 * To evaluate the supervised learning model, run
 ```bash
 # Will play the game for 50 times and return the average score
@@ -47,9 +37,19 @@ P.S. Currently the max score is 1024, the average score is 541.44.
 ```bash
 python evaluate.py --agent=pagent
 ```
-P.S. Currently the max score is 2048 with the depth set to 4.
+P.S. With the depth set to 3, the planning method can reach the score 2048.
 
-![demo](preview2048.gif)
+
+## To run the web app
+```
+python webapp.py 
+```
+You can also specify an agent by adding `--agent`. `cnnagent`, `pagent`, `emagent` are usable, `RandomAgent` by default.
+
+For example, run the web app with the planning agent
+```bash
+python webapp.py --agent=pagent
+```
 
 ## To compile the pre-defined ExpectiMax agent
 
@@ -58,6 +58,8 @@ cd game2048/expectimax
 bash configure
 make
 ```
+
+![demo](preview2048.gif)
 
 ## LICENSE
 The code is under Apache-2.0 License.
