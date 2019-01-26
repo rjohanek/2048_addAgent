@@ -7,7 +7,7 @@ import numpy as np
 from collections import namedtuple
 
 # 16 is better...
-CAND = 12
+CAND = 16
 MAP_TABLE = {2 ** i: i for i in range(1, CAND)}
 MAP_TABLE[0] = 0
 BATCH_SIZE = 1024
