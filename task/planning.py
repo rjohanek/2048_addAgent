@@ -6,7 +6,7 @@
 import numpy as np
 
 
-def board_to_move(board, max_depth):
+def predict(board, max_depth):
     '''入口函数'''
     results = []
     for direction in range(4):
@@ -16,7 +16,7 @@ def board_to_move(board, max_depth):
     # 已经不能再移动了的情况姑且返回方向为0
     if len(results) == 0:
         return 0
-    return max(results, key=lambda x: x[1])[0]
+    return results
 
 
 def deep_search(board, depth, move=False):

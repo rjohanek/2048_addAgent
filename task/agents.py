@@ -4,6 +4,7 @@
 # @Last Modified time: 2019-01-14 09:08:24
 
 import sys
+
 sys.path.append(".")
 
 import os
@@ -18,13 +19,14 @@ class PlanningAgent(Agent):
 
     def __init__(self, game, display=None):
         super().__init__(game, display)
-        from .planning import board_to_move
-        self.search_func = board_to_move
+        from .planning import predict
+        self.search_func = predict
         # map_depth, can be adjusted
         self.max_depth = 4
 
     def step(self):
-        direction = self.search_func(self.game.board, self.max_depth)
+        results = self.search_func(self.game.board, self.max_depth)
+        direction = max(results, key=lambda x: x[1])[0]
         return direction
 
 
