@@ -1,4 +1,4 @@
-# EE369-2048-AI
+# Extension of EE369-2048-AI to add an AI Agent, this is their README:
 
 For SJTU [EE369](https://github.com/duducheng/2048-api) final project.
 
