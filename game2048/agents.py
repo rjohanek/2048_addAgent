@@ -1,4 +1,5 @@
 import numpy as np
+import collections
 
 
 class Agent:
@@ -18,8 +19,32 @@ class Agent:
                 print("Iter: {}".format(n_iter))
                 print("======Direction: {}======".format(
                     ["left", "down", "right", "up"][direction]))
+            
                 if self.display is not None:
                     self.display.display(self.game)
+
+    def play_learn(self, max_iter=np.inf, verbose=False):
+        n_iter = 0
+        state_pairs = []
+
+        while (n_iter < max_iter) and (not self.game.end):
+            direction = self.step()
+            state = self.game.board
+            self.game.move(direction)
+            new_state = self.game.board
+            n_iter += 1
+            state_pairs.append((state, new_state))
+
+            if verbose:
+                print("Iter: {}".format(n_iter))
+                print("======Direction: {}======".format(
+                    ["left", "down", "right", "up"][direction]))
+            
+                if self.display is not None:
+                    self.display.display(self.game)
+        counter = collections.Counter(state_pairs)
+        print(counter)
+        return counter
 
     def step(self):
         direction = int(input("0: left, 1: down, 2: right, 3: up = ")) % 4

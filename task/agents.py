@@ -45,6 +45,25 @@ class CNNAgent(Agent):
         board = np.array([board_to_onehot(self.game.board)])
         direction = int(my_model.predict(board).argmax())
         return direction
+    
+
+class LearningAgent(Agent):
+    '''Agent learning probabilities of state transitions using a combination the pre-existing planning agent 90% of the time
+       and random selection the other 10%.'''
+
+    def __init__(self, game, display=None):
+        super().__init__(game, display)
+        self.planningAgent = PlanningAgent(game)
+        self.counter = 0
+
+    def step(self):
+        if self.counter / 10 == 0:
+            direction = np.random.randint(0, 4)
+            self.counter += 1
+        else:
+            direction = self.planningAgent.step()
+            self.counter += 1
+        return direction
 
 
 class MarkovAgent(Agent):
@@ -90,10 +109,10 @@ class MarkovModel():
             [0, 0, 0, 2], [0, 0, 2, 0], [0, 2, 0, 0], [2, 0, 0, 0],
             # two 2 tiles generated (6 options)
             [0, 0, 1, 1], [1, 1, 0, 0], [0, 1, 1, 0], [
-                0, 1, 0, 1], [1, 0, 1, 0], [1, 0, 0, 1]
+                0, 1, 0, 1], [1, 0, 1, 0], [1, 0, 0, 1],
             # two 4 tiles generated (6 options)
             [0, 0, 2, 2], [2, 2, 0, 0], [0, 2, 2, 0], [
-                    0, 2, 0, 2], [2, 0, 2, 0], [2, 0, 0, 2]
+                    0, 2, 0, 2], [2, 0, 2, 0], [2, 0, 0, 2],
             # one 2 and one 4 generated (12 options)
             [0, 0, 2, 1], [0, 2, 0, 1], [0, 0, 2, 1],
             [0, 0, 1, 2], [2, 0, 1, 0], [0, 2, 1, 0],
