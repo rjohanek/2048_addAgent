@@ -48,7 +48,7 @@ You can also specify an agent by adding `--agent`. `cnnagent`, `pagent`, `emagen
 
 For example, run the web app with the planning agent
 ```bash
-python webapp.py --agent=pagent
+python webapp.py --agent=pagen
 ```
 
 ## To compile the pre-defined ExpectiMax agent
@@ -63,3 +63,4 @@ make
 
 ## LICENSE
 The code is under Apache-2.0 License.
+pp.

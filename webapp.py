@@ -42,6 +42,10 @@ if __name__ == "__main__":
             from task.agents import PlanningAgent as TestAgent
         elif agent_name == "cnnagent":
             from task.agents import CNNAgent as TestAgent
+        elif agent_name == "markov_value":
+            GAME_SIZE = 2
+            SCORE_TO_WIN = 32
+            from task.agents import MarkovAgent as TestAgent
         else:
             print("WARNING: Agent class doesn't exist.")
     else:
