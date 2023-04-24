@@ -29,11 +29,11 @@ class Agent:
 
         while (n_iter < max_iter) and (not self.game.end):
             direction = self.step()
-            state = self.game.board
+            state = self.convert_state(self.game.board)
             self.game.move(direction)
-            new_state = self.game.board
+            new_state = self.convert_state(self.game.board)
             n_iter += 1
-            transition = [state,new_state]
+            transition = (state, new_state)
 
             state_pairs.append(transition)
 
@@ -45,18 +45,27 @@ class Agent:
                 if self.display is not None:
                     self.display.display(self.game)
 
-        counter = collections.Counter()
-        print(state_pairs)
-        for element in state_pairs:
-            print(element)
-            print(element[0])
-            counter.update(element[0])
-        print(counter)
+        counter = collections.Counter(state_pairs)
+        # print(state_pairs)
+        # for element in state_pairs:
+        #     print(element)
+        #     print(element[0])
+        #     counter.update(element[0])
+        # print(counter)
         return counter
 
     def step(self):
         direction = int(input("0: left, 1: down, 2: right, 3: up = ")) % 4
         return direction
+    
+    def convert_state(state):
+        numbers = ""
+        
+        for row in state:
+            for col in state:
+                numbers += str(state[row][col])
+                
+        return numbers
 
 
 class RandomAgent(Agent):
