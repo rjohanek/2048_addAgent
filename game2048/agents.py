@@ -33,7 +33,9 @@ class Agent:
             self.game.move(direction)
             new_state = self.game.board
             n_iter += 1
-            state_pairs.append((state, new_state))
+            transition = [state,new_state]
+
+            state_pairs.append(transition)
 
             if verbose:
                 print("Iter: {}".format(n_iter))
@@ -42,7 +44,13 @@ class Agent:
             
                 if self.display is not None:
                     self.display.display(self.game)
-        counter = collections.Counter(state_pairs)
+
+        counter = collections.Counter()
+        print(state_pairs)
+        for element in state_pairs:
+            print(element)
+            print(element[0])
+            counter.update(element[0])
         print(counter)
         return counter
 

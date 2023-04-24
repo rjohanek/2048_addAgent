@@ -46,6 +46,21 @@ class CNNAgent(Agent):
         direction = int(my_model.predict(board).argmax())
         return direction
     
+class GreedyAgent(Agent):
+    '''Agent using tree-search to play the game.'''
+
+    def __init__(self, game, display=None):
+        super().__init__(game, display)
+        from .planning import merge
+        self.merge = merge
+
+    def step(self):
+        results = []
+        for dir in range(4):
+            # this is how the game.py file calculates score of a game/board
+            results.append((dir, int(self.merge(self.game.board, dir).max())))
+        direction = max(results, key=lambda x: x[1])[0]
+        return direction
 
 class LearningAgent(Agent):
     '''Agent learning probabilities of state transitions using a combination the pre-existing planning agent 90% of the time
@@ -53,7 +68,7 @@ class LearningAgent(Agent):
 
     def __init__(self, game, display=None):
         super().__init__(game, display)
-        self.planningAgent = PlanningAgent(game)
+        self.greedyAgent = GreedyAgent(game)
         self.counter = 0
 
     def step(self):
@@ -61,9 +76,10 @@ class LearningAgent(Agent):
             direction = np.random.randint(0, 4)
             self.counter += 1
         else:
-            direction = self.planningAgent.step()
+            direction = np.random.randint(0, 4)
             self.counter += 1
         return direction
+    
 
 
 class MarkovAgent(Agent):
@@ -119,9 +135,6 @@ class MarkovModel():
             [0, 1, 0, 2], [0, 1, 2, 0], [0, 1, 0, 2],
             [1, 2, 0, 0], [1, 0, 2, 0], [1, 0, 0, 2]
         ]
-
-    def add_states(self, state):
-        NotImplementedError()
 
     def value_iteration(self):
         NotImplementedError()
