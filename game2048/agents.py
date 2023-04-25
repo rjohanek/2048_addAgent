@@ -23,15 +23,16 @@ class Agent:
                 if self.display is not None:
                     self.display.display(self.game)
 
+    # added to keep track of exploration for the learning agent
     def play_learn(self, max_iter=np.inf, verbose=False):
         n_iter = 0
         state_pairs = []
 
         while (n_iter < max_iter) and (not self.game.end):
             direction = self.step()
-            state = self.convert_state(self.game.board)
+            state = convert_state(self.game.board)
             self.game.move(direction)
-            new_state = self.convert_state(self.game.board)
+            new_state = convert_state(self.game.board)
             n_iter += 1
             transition = (state, new_state)
 
@@ -46,26 +47,22 @@ class Agent:
                     self.display.display(self.game)
 
         counter = collections.Counter(state_pairs)
-        # print(state_pairs)
-        # for element in state_pairs:
-        #     print(element)
-        #     print(element[0])
-        #     counter.update(element[0])
-        # print(counter)
         return counter
 
     def step(self):
         direction = int(input("0: left, 1: down, 2: right, 3: up = ")) % 4
         return direction
     
-    def convert_state(state):
-        numbers = ""
-        
-        for row in state:
-            for col in state:
-                numbers += str(state[row][col])
+# in order to represent states more simply, convert from matrix to string
+# required for use of Counter()
+def convert_state(state):
+    numbers = ""
+    
+    for row in range(len(state)):
+        for col in range(len(state[row])):
+            numbers += str(state[row][col])
                 
-        return numbers
+    return numbers
 
 
 class RandomAgent(Agent):

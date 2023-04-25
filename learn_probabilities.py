@@ -4,12 +4,18 @@ import matplotlib.pyplot as plt
 import sys
 from collections import Counter
 
+# copied from evaluate.py
+# added calculate_probabilities
+# and changed single_run to call play_learn
+# changed main to call learning agent by default and keep track of counts
+
 
 def single_run(size, score_to_win, AgentClass, **kwargs):
     game = Game(size, score_to_win)
     agent = AgentClass(game, display=Display(), **kwargs)
     counts = agent.play_learn(verbose=True)
     return counts
+
 
 def calculate_probabilities(counts):
     # sum up the counts for all state pairs that originate at the same state to be denominator for each state
@@ -30,7 +36,8 @@ def calculate_probabilities(counts):
             transition_probabilities[entry] = 0
 
     # return probabilities that represent the liklihood of going to the second state in the pair, given the first
-    return transition_probabilities
+    # and return a list of all states explored
+    return {"states": occurrence_of_each_state.keys(), "probs": transition_probabilities}
 
 
 if __name__ == '__main__':
@@ -52,8 +59,8 @@ if __name__ == '__main__':
     for i in range(N_TESTS):
         print("N_TESTS for :%d" % i)
         counts = single_run(GAME_SIZE, SCORE_TO_WIN,
-                           AgentClass=TestAgent)
+                            AgentClass=TestAgent)
         total_counts.update(counts)
-        
-    print(calculate_probabilities(total_counts))
-    
+
+    with open("learned_states_probs.txt", "a") as f:
+        print(calculate_probabilities(total_counts), file=f)
