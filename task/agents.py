@@ -139,26 +139,26 @@ class MarkovModel():
                 max_val = 0
                 for a in self.actions:
 
-                # Compute state value
-                val = self.rewards[s]  # Get direct reward
-                for s_next in self.states:
-                    val += self.probs[s][s_next][a] * (
-                        self.gamma * V[s_next]
-                    )  # Add discounted downstream values
+                    # Compute state value
+                    val = self.rewards[s]  # Get direct reward
+                    for s_next in self.states:
+                        val += self.probs[s][s_next][a] * (
+                            self.gamma * V[s_next]
+                        )  # Add discounted downstream values
 
-                # Store value best action so far
-                max_val = max(max_val, val)
+                    # Store value best action so far
+                    max_val = max(max_val, val)
 
-                # Update best policy
-                if V[s] < val:
-                    self.pi[s] = self.actions[a]  # Store action with highest value
+                    # Update best policy
+                    if V[s] < val:
+                        self.pi[s] = self.actions[a]  # Store action with highest value
 
-            V_new[s] = max_val  # Update value with highest value
+                V_new[s] = max_val  # Update value with highest value
 
-            # Update maximum difference
-            max_diff = max(max_diff, abs(V[s] - V_new[s]))
+                # Update maximum difference
+                max_diff = max(max_diff, abs(V[s] - V_new[s]))
 
-            # Update value functions
+             # Update value functions
             V = V_new
 
             # If diff smaller than threshold delta for all states, algorithm terminates
