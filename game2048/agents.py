@@ -26,7 +26,7 @@ class Agent:
     # added to keep track of exploration for the learning agent
     def play_learn(self, max_iter=np.inf, verbose=False):
         n_iter = 0
-        state_pairs = []
+        transitions = []
 
         while (n_iter < max_iter) and (not self.game.end):
             direction = self.step()
@@ -34,9 +34,9 @@ class Agent:
             self.game.move(direction)
             new_state = convert_state(self.game.board)
             n_iter += 1
-            transition = (state, new_state)
+            transition = (state, new_state, direction)
 
-            state_pairs.append(transition)
+            transitions.append(transition)
 
             if verbose:
                 print("Iter: {}".format(n_iter))
@@ -46,7 +46,7 @@ class Agent:
                 if self.display is not None:
                     self.display.display(self.game)
 
-        counter = collections.Counter(state_pairs)
+        counter = collections.Counter(transitions)
         return counter
 
     def step(self):

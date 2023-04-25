@@ -19,17 +19,21 @@ def single_run(size, score_to_win, AgentClass, **kwargs):
 
 def calculate_probabilities(counts):
     # sum up the counts for all state pairs that originate at the same state to be denominator for each state
-    occurrence_of_each_state = Counter()
+    counts_state_direction_pairs = Counter()
+    states = set()
     for entry in counts.elements():
         state1 = entry[0]
+        direction = entry[2]
         value = counts[entry]
-        occurrence_of_each_state.update([state1]*value)
+        counts_state_direction_pairs.update([(state1, direction)]*value)
+        states.add(state1)
 
     # divide each state pair count by its corresponding denominator
     transition_probabilities = {}
     for entry in counts.elements():
         state1 = entry[0]
-        denom = occurrence_of_each_state[state1]
+        direction = entry[2]
+        denom = counts_state_direction_pairs[(state1, direction)]
         if denom > 0:
             transition_probabilities[entry] = counts[entry] / denom
         else:
@@ -37,7 +41,8 @@ def calculate_probabilities(counts):
 
     # return probabilities that represent the liklihood of going to the second state in the pair, given the first
     # and return a list of all states explored
-    return {"states": list(occurrence_of_each_state.keys()), "probs": transition_probabilities}
+    # {"states": ["0.0.0.0", ...], "probs": ("0.0.0.0", "0.0.0.0", 0): 0.5, ...}
+    return {"states": list(states), "probs": transition_probabilities}
 
 
 if __name__ == '__main__':

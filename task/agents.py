@@ -8,7 +8,7 @@ import sys
 sys.path.append(".")
 
 import os
-from game2048.agents import Agent
+from game2048.agents import Agent, convert_state
 from .util import board_to_onehot
 import numpy as np
 from keras.models import load_model
@@ -93,7 +93,7 @@ class MarkovAgent(Agent):
         self.model = MarkovModel(game)
 
     def step(self):
-        direction = np.random.randint(0, 4)
+        direction = self.model.policies[convert_state(self.game.board)]
         return direction
 
 
@@ -123,18 +123,19 @@ class MarkovModel():
         self.discount = discount
         
         # Set value iteration parameters
-        self.max_iter = 10000  # Maximum number of iterations
+        self.k = 100  # Maximum number of iterations
         self.delta = 1e-400  # Error tolerance
-        self.V = [0, 0, 0, 0, 0]  # Initialize values
-        self.pi = [None, None, None, None, None]  # Initialize policy
+        self.values = [0]*len(self.states)  # Initialize values
+        self.policies = [None]*len(self.states) # Initialize policy
 
-    def mdp(self):
-        NotImplementedError()
+        self.value_iteration()
+
         
     def value_iteration(self):
-        for i in range(self.max_iter):
+        for i in range(self.k):
             max_diff = 0  # Initialize max difference
-            V_new = [0, 0, 0, 0, 0]  # Initialize values
+            V_new = [0]*len(self.states)  # Initialize values
+
             for s in self.states:
                 max_val = 0
                 for a in self.actions:
@@ -142,26 +143,24 @@ class MarkovModel():
                     # Compute state value
                     val = self.rewards[s]  # Get direct reward
                     for s_next in self.states:
-                        val += self.probs[s][s_next][a] * (
-                            self.gamma * V[s_next]
-                        )  # Add discounted downstream values
+                        val += self.probs(s, s_next, a) * (self.discount * self.values[s_next])  # Add discounted downstream values
 
                     # Store value best action so far
                     max_val = max(max_val, val)
 
                     # Update best policy
-                    if V[s] < val:
-                        self.pi[s] = self.actions[a]  # Store action with highest value
+                    if self.values[s] < val:
+                        self.policies[s] = self.actions[a]  # Store action with highest value
 
                 V_new[s] = max_val  # Update value with highest value
 
                 # Update maximum difference
                 max_diff = max(max_diff, abs(V[s] - V_new[s]))
 
-             # Update value functions
-            V = V_new
+            # Update value functions
+            self.values = V_new
 
-            # If diff smaller than threshold delta for all states, algorithm terminates
+            # convergence
             if max_diff < self.delta:
                 break
 
