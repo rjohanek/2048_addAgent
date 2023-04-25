@@ -93,7 +93,7 @@ def merge(board, direction):
     # treat all direction as left (by rotation)
     board = board.copy()
     board_to_left = np.rot90(board, -direction)
-    for row in range(4):
+    for row in range(len(board)):
         core = _merge(board_to_left[row])
         board_to_left[row, :len(core)] = core
         board_to_left[row, len(core):] = 0
