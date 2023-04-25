@@ -8,7 +8,7 @@ from collections import Counter
 # added calculate_probabilities
 # and changed single_run to call play_learn
 # changed main to call learning agent by default and keep track of counts
-
+# and populates file with learned data
 
 def single_run(size, score_to_win, AgentClass, **kwargs):
     game = Game(size, score_to_win)
@@ -37,7 +37,7 @@ def calculate_probabilities(counts):
 
     # return probabilities that represent the liklihood of going to the second state in the pair, given the first
     # and return a list of all states explored
-    return {"states": occurrence_of_each_state.keys(), "probs": transition_probabilities}
+    return {"states": list(occurrence_of_each_state.keys()), "probs": transition_probabilities}
 
 
 if __name__ == '__main__':
