@@ -43,7 +43,7 @@ def calculate_probabilities(counts):
 if __name__ == '__main__':
     GAME_SIZE = 2
     SCORE_TO_WIN = 32
-    N_TESTS = 50
+    N_TESTS = 100
 
     if len(sys.argv) == 2:
         agent_name = sys.argv[1].split("=")[-1]
