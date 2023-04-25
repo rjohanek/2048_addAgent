@@ -76,7 +76,7 @@ class LearningAgent(Agent):
             direction = np.random.randint(0, 4)
             self.counter += 1
         else:
-            direction = np.random.randint(0, 4)
+            direction = self.greedyAgent.step()
             self.counter += 1
         return direction
     
