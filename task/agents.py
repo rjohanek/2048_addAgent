@@ -3,17 +3,16 @@
 # @Last Modified by: voldikss
 # @Last Modified time: 2019-01-14 09:08:24
 
+import ast
+import json
+from keras.models import load_model
+import numpy as np
+from .util import board_to_onehot
+from game2048.agents import Agent, convert_state
+import os
 import sys
 
 sys.path.append(".")
-
-import os
-from game2048.agents import Agent, convert_state
-from .util import board_to_onehot
-import numpy as np
-from keras.models import load_model
-import json
-import ast
 
 
 class PlanningAgent(Agent):
@@ -114,58 +113,70 @@ class MarkovModel():
         self.states = loaded_data["states"]
 
         # Load transition probabilities that were learned during exploration
-        self.transitions = ast.literal_eval(loaded_data["probs"])  
+        self.transitions = ast.literal_eval(loaded_data["probs"])
 
         # rewards only for terminal states +10 for win -10 for loss, 0 for all other
         self.rewards = determine_rewards(self.states, game.score_to_win)
 
         # discounting value
         self.discount = discount
-        
+
         # Set value iteration parameters
         self.k = 100  # Maximum number of iterations
         self.delta = 1e-400  # Error tolerance
         self.values = [0]*len(self.states)  # Initialize values
-        self.policies = [None]*len(self.states) # Initialize policy
+        self.policies = [None]*len(self.states)  # Initialize policy
 
         self.value_iteration()
 
-        
     def value_iteration(self):
+        # starting at 0, do value iteration for k time, default 100
         for i in range(self.k):
-            max_diff = 0  # Initialize max difference
-            V_new = [0]*len(self.states)  # Initialize values
+            update_diff = 0 
+            updated_values = [0]*len(self.states)  # Initialize values
 
-            for s in self.states:
+            # go through every state
+            for i in range(len(self.states)):
                 max_val = 0
+                s = self.states[i]
                 for a in self.actions:
 
-                    # Compute state value
-                    val = self.rewards[s]  # Get direct reward
-                    for s_next in self.states:
-                        val += self.probs(s, s_next, a) * (self.discount * self.values[s_next])  # Add discounted downstream values
+                    # Compute the state value
+                    val = self.rewards[i]  # Get reward value of state
+                    
+                    # go through all states again
+                    # could be improved by only going through states that are known successors
+                    for j in range(len(self.states)):
+                        s_next = self.states[j]
+                        # if there is a non zero probability
+                        if (s, s_next, a) in self.transitions:
+                            # Add discounted downstream values
+                            val += self.transitions[(s, s_next, a)] * (self.discount * self.values[j])
 
-                    # Store value best action so far
-                    max_val = max(max_val, val)
+                    # Store best value so far
+                    if val > max_val:
+                        max_val = val
 
-                    # Update best policy
-                    if self.values[s] < val:
-                        self.policies[s] = self.actions[a]  # Store action with highest value
+                    # Update policy based on new values
+                    if self.values[i] < val:
+                        # Store action with highest value
+                        self.policies[i] = self.actions[a]
 
-                V_new[s] = max_val  # Update value with highest value
+                updated_values[i] = max_val 
 
-                # Update maximum difference
-                max_diff = max(max_diff, abs(V[s] - V_new[s]))
+                # Update difference
+                update_diff = max(update_diff, abs(self.values[i] - updated_values[i]))
 
             # Update value functions
-            self.values = V_new
+            self.values = updated_values
 
             # convergence
-            if max_diff < self.delta:
+            if update_diff < self.delta:
                 break
 
     def policy_iteration(self):
         NotImplementedError()
+
 
 def load_states_probs():
     # estimate T and S through learning agent that uses greedy 90% and random 10%
@@ -175,8 +186,9 @@ def load_states_probs():
     # add " " around the entire value of probs
     with open("learned_states_probs.txt", "r") as f:
         data = f.read()
-    dict = json.loads(data)
+    dict = json.loads(data, strict=False)
     return dict
+
 
 def determine_rewards(states, score_to_win):
     rewards = []
@@ -187,6 +199,7 @@ def determine_rewards(states, score_to_win):
             rewards.append(-10)
         else:
             rewards.append(0)
+    return rewards
 
 
 def is_win(state, score_to_win):
@@ -205,14 +218,15 @@ def is_loss(state):
         return False
     else:
         return True
-    
+
 # only implemented for 2x2 board
+
+
 def is_mergeable(state_values):
-    if (state_values[0] == state_values[1] 
-        or state_values[2] == state_values[3] 
-        or state_values[0] == state_values[2] 
-        or state_values[1] == state_values[3]):
+    if (state_values[0] == state_values[1]
+        or state_values[2] == state_values[3]
+        or state_values[0] == state_values[2]
+            or state_values[1] == state_values[3]):
         return True
     else:
         return False
-
