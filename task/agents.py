@@ -121,12 +121,49 @@ class MarkovModel():
 
         # discounting value
         self.discount = discount
+        
+        # Set value iteration parameters
+        self.max_iter = 10000  # Maximum number of iterations
+        self.delta = 1e-400  # Error tolerance
+        self.V = [0, 0, 0, 0, 0]  # Initialize values
+        self.pi = [None, None, None, None, None]  # Initialize policy
 
     def mdp(self):
         NotImplementedError()
         
     def value_iteration(self):
-        NotImplementedError()
+        for i in range(self.max_iter):
+            max_diff = 0  # Initialize max difference
+            V_new = [0, 0, 0, 0, 0]  # Initialize values
+            for s in self.states:
+                max_val = 0
+                for a in self.actions:
+
+                # Compute state value
+                val = self.rewards[s]  # Get direct reward
+                for s_next in self.states:
+                    val += self.probs[s][s_next][a] * (
+                        self.gamma * V[s_next]
+                    )  # Add discounted downstream values
+
+                # Store value best action so far
+                max_val = max(max_val, val)
+
+                # Update best policy
+                if V[s] < val:
+                    self.pi[s] = self.actions[a]  # Store action with highest value
+
+            V_new[s] = max_val  # Update value with highest value
+
+            # Update maximum difference
+            max_diff = max(max_diff, abs(V[s] - V_new[s]))
+
+            # Update value functions
+            V = V_new
+
+            # If diff smaller than threshold delta for all states, algorithm terminates
+            if max_diff < self.delta:
+                break
 
     def policy_iteration(self):
         NotImplementedError()
