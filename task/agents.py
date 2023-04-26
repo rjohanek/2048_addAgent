@@ -94,13 +94,12 @@ class MarkovAgent(Agent):
 
     def step(self):
         state = convert_state(self.game.board)
-        if (state in self.model.states):
-            index = self.model.states.index(convert_state(self.game.board))
-            return self.model.policies[index]
-
-        else:
-            # if state has never been seen, default behavior is left
-            return 0
+        for i in range(len(self.model.states)):
+            s = self.model.states[i]
+            if s == state:
+                return self.model.policies[i]
+        # if state has never been seen, default behavior is left
+        return 0
 
 
 # Markov Decision Process
@@ -134,15 +133,14 @@ class MarkovModel():
         self.values = [0]*len(self.states)  # Initialize values
         self.policies = [None]*len(self.states)  # Initialize policy
 
-
     def value_iteration(self):
 
         # starting at 0, do value iteration for k times, default 100
         for i in range(self.k):
-            update_diff = 0 
+            update_diff = 0
             updated_values = [0]*len(self.states)  # Initialize values
 
-            # go through every state, using index because states, rewards, and policy use the same index 
+            # go through every state, using index because states, rewards, and policy use the same index
             # to represent the same state
             for i in range(len(self.states)):
                 max_val = 0
@@ -151,7 +149,7 @@ class MarkovModel():
 
                     # Compute the state value
                     val = self.rewards[i]  # Get reward value of state
-                    
+
                     # go through all states again
                     # could be improved by only going through states that are known successors
                     for j in range(len(self.states)):
@@ -159,7 +157,8 @@ class MarkovModel():
                         # if there is a non zero probability
                         if (s, s_next, a) in self.transitions:
                             # Add the product of the probability and the discounted value of the successor
-                            val += self.transitions[(s, s_next, a)] * (self.discount * self.values[j])
+                            val += self.transitions[(s, s_next, a)] * \
+                                (self.discount * self.values[j])
 
                     # Store best value so far
                     if val > max_val:
@@ -171,10 +170,11 @@ class MarkovModel():
                         # Store action with highest value
                         self.policies[i] = a
 
-                updated_values[i] = max_val 
+                updated_values[i] = max_val
 
                 # Update the max difference to know if we've reached delta (there's virtually no change)
-                update_diff = max(update_diff, abs(self.values[i] - updated_values[i]))
+                update_diff = max(update_diff, abs(
+                    self.values[i] - updated_values[i]))
 
             # Update value functions
             self.values = updated_values
@@ -182,7 +182,6 @@ class MarkovModel():
             # convergence
             if update_diff < self.delta:
                 break
-
 
     def policy_iteration(self):
         NotImplementedError()
@@ -230,6 +229,8 @@ def is_loss(state):
         return True
 
 # only implemented for 2x2 board
+
+
 def is_mergeable(state_values):
     if (state_values[0] == state_values[1]
         or state_values[2] == state_values[3]
@@ -238,6 +239,7 @@ def is_mergeable(state_values):
         return True
     else:
         return False
+
 
 def calc_reward(state):
     state_values = state.split(".")
