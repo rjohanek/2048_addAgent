@@ -121,7 +121,8 @@ class MarkovModel():
         # Load transition probabilities that were learned during exploration
         self.transitions = ast.literal_eval(loaded_data["probs"])
 
-        # rewards only for terminal states +10 for win -10 for loss, 0 for all other
+        # rewards only for terminal states +100 for win -100 for loss, 
+        # and a calculation of score based on highest tile and future potential
         self.rewards = determine_rewards(self.states, game.score_to_win)
 
         # discounting value
@@ -135,53 +136,51 @@ class MarkovModel():
 
     def value_iteration(self):
         # Repeat for k iterations or until convergence
-        for state_index in range(self.k):
-            # Initialize update difference and updated values
-            update_diff = 0 
-            updated_values = [0] * len(self.states) 
-            
+        for num_iter in range(self.k):
+            # Initialize update difference used to track convergence
+            update_diff = 0
+
             # For each state in the state space
-            for next_state_index in range(len(self.states)):
+            for state_index in range(len(self.states)):
                 # Get the state and set the maximum value to zero
-                s = self.states[next_state_index]
+                s = self.states[state_index]
                 max_val = 0
+                max_action = 1
+                # Get the state value
+                val = self.rewards[state_index]
 
                 # For each possible action in the action space
                 for action in self.actions:
 
-                    # Compute the state value
-                    val = self.rewards[next_state_index]  # Get reward value of state
-                    
                     # For each possible next state in the state space
                     '''If successors was working
-                    for s_next in self.get_successors(self, self.states, self.transitions)'''
-                    for num_iterations in range(len(self.states)):
-                        s_next = self.states[num_iterations]
+                    for s_next in self.get_successors(self, self.states, self.transitions)
+                    this would be a more efficient solution'''
+                    for next_state_index in range(len(self.states)):
+                        s_next = self.states[next_state_index]
                         # Check if there is a non-zero probability
                         if (s, s_next, action) in self.transitions:
                             # Add the product of the probability and the discounted value of the successor
-                            val += self.transitions[(s, s_next, a)] * (self.discount * self.values[j])
+                            val += self.transitions[(s, s_next, action)] * (
+                                self.discount * self.values[next_state_index])
 
+                    # Update the value if the new value is greater than the current value
                     # Update policy if the value is greater than the maximum value so far
                     if val > max_val:
                         max_val = val
-                        self.policies[next_state_index] = action
-                    
-                    # Update the value if the new value is greater than the current value
-                    if self.values[next_state_index] < val:
-                        self.values[next_state_index] = val
-                        updated_values[next_state_index] = val
-                
+                        max_action = action
+
                 # Compute the difference between the updated and current value for the current state
-                update_diff = max(update_diff, abs(self.values[next_state_index] - updated_values[next_state_index]))
-            
-            # Update the value function with the updated values
-            self.values = updated_values
-            
+                update_diff = max(update_diff, abs(
+                    self.values[state_index] - max_val))
+                # Update the value function with the updated values
+                self.values[state_index] = max_val
+                self.policies[state_index] = max_action
+
             # Check if convergence has been reached
             if update_diff < self.delta:
                 break
-    
+
     '''
     function iterates over all the available actions and computes the probability distribution over the next states for each action by querying the transition probabilities dictionary. 
     the get method of the dictionary is used to retrieve the probability of transitioning from state to next_state given action. 
@@ -242,10 +241,9 @@ def is_loss(state):
         return False
     else:
         return True
+    
 
 # only implemented for 2x2 board
-
-
 def is_mergeable(state_values):
     if (state_values[0] == state_values[1]
         or state_values[2] == state_values[3]
@@ -255,7 +253,14 @@ def is_mergeable(state_values):
     else:
         return False
 
-
+# try to distinguish boards based on their highest value, and their value potential in the future
 def calc_reward(state):
     state_values = state.split(".")
-    return max(int(i) for i in state_values)
+    highest_score = max(int(i) for i in state_values)
+    # if you have space on the board, that's good
+    if "0" in state_values:
+        highest_score +=1
+    # if you can merge that's good
+    if is_mergeable(state_values):
+        highest_score +=1
+    return highest_score
