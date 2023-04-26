@@ -1,4 +1,33 @@
-# Extension of EE369-2048-AI to add an AI Agent, this is their README:
+# Solving 2048 with Value Iteration and Markov Decision Process
+
+Our project is an extension of another repo (https://github.com/voldikss/EE369-2048-AI)
+
+Below is a list of methods/classes that we either created or modified/added to:
+
+## Created:
+* [`task/agents.py`](task/agents.py)
+    * `MarkovModel` class
+    * `LearningAgent` class
+    * `GreedyAgent` class
+    * `load_states_probs` method
+    * `determine_rewards` method
+    * `is_win` method
+    * `is_loss` method
+    * `is_mergeable` method
+    * `step` method
+    * `calc_reward` method
+* [`game2048/agents.py`](game2048/agents.py)
+    * `play_learn` method
+    * `convert_state` method
+* [`learn_probabilities.py`](learn_probabilities.py)
+* [`learned_states_probs.txt`](learned_states_probs.txt)
+
+## Modified/added to:
+* [`webapp.py`](webapp.py)
+* [`task/planning.py`](task/planning.py)
+* [`evaluate.py`](evaluate.py)
+
+## This is the original repo's README:
 
 For SJTU [EE369](https://github.com/duducheng/2048-api) final project.
 
